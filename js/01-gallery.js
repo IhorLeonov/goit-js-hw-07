@@ -1,22 +1,21 @@
 'use stict';
 // Создай галерею с возможностью клика по её элементам и просмотра полноразмерного изображения в модальном окне.
 
-// 1.Создание и рендер разметки по массиву данных galleryItems и предоставленному шаблону элемента галереи.
-// 2.Реализация делегирования на div.gallery и получение url большого изображения.
-// 3.Подключение скрипта и стилей библиотеки модального окна basicLightbox.
-// Используй CDN сервис jsdelivr и добавь в проект ссылки на минифицированные(.min) файлы библиотеки.
-// 4.Открытие модального окна по клику на элементе галереи. Для этого ознакомься с документацией и примерами.
-// 5.Замена значения атрибута src элемента <img> в модальном окне перед открытием.
-// Используй готовую разметку модального окна с изображением из примеров библиотеки basicLightbox.
-// 6.Добавь закрытие модального окна по нажатию клавиши Escape.
-// Сделай так, чтобы прослушивание клавиатуры было только пока открыто модальное окно.
+// ✅ 1.Создание и рендер разметки по массиву данных galleryItems и предоставленному шаблону элемента галереи.
+// ✅ 2.Реализация делегирования на div.gallery и получение url большого изображения.
+// ✅ 3.Подключение скрипта и стилей библиотеки модального окна basicLightbox. Используй CDN сервис jsdelivr и добавь в проект ссылки на минифицированные(.min) файлы библиотеки.
+// ✅ 4.Открытие модального окна по клику на элементе галереи. Для этого ознакомься с документацией и примерами.
+// ✅ 5.Замена значения атрибута src элемента <img> в модальном окне перед открытием. Используй готовую разметку модального окна с изображением из примеров библиотеки basicLightbox.
+// ✅ 6.Добавь закрытие модального окна по нажатию клавиши Escape. Сделай так, чтобы прослушивание клавиатуры было только пока открыто модальное окно.
 
 import { galleryItems } from './gallery-items.js';
 // Change code below this line
-const galleryContainer = document.querySelector('.gallery');
+
+const galleryBox = document.querySelector('.gallery');
 const imagesMarkup = createGalleryMarkup(galleryItems);
-galleryContainer.insertAdjacentHTML('beforeend', imagesMarkup);
-galleryContainer.addEventListener('click', onImageClick);
+galleryBox.insertAdjacentHTML('beforeend', imagesMarkup);
+galleryBox.addEventListener('click', onImageClick);
+let lightbox;
 
 function createGalleryMarkup(galleryItems) {
   return galleryItems
@@ -35,29 +34,33 @@ function createGalleryMarkup(galleryItems) {
     .join('');
 }
 
-function onImageClick(e) {
+function stopLoadingImg(e) {
   e.preventDefault();
+}
+
+function onEscapePress(e) {
+  if (e.code === 'Escape') {
+    lightbox.close();
+  }
+}
+
+function onImageClick(e) {
+  stopLoadingImg(e);
+
   if (e.target.nodeName !== 'IMG') {
     return;
   }
 
-  const instance = basicLightbox.create(
-    `<img src="${e.target.dataset.source}">`
-  );
+  lightbox = basicLightbox.create(`<img src="${e.target.dataset.source}">`, {
+    onShow: () => {
+      galleryBox.addEventListener('keydown', onEscapePress);
+    },
+    onClose: () => {
+      galleryBox.removeEventListener('keydown', onEscapePress);
+    },
+  });
 
-  instance.show();
+  lightbox.show();
 
-  if (instance.visible() === true) {
-    galleryContainer.addEventListener('keydown', onEscapePress);
-    console.log('modal is shown');
-  }
-
-  function onEscapePress(e) {
-    if (e.code === 'Escape') {
-      console.log('press esc');
-      instance.close();
-    }
-  }
+  onEscapePress(e);
 }
-// У библиотеки basicLightbox есть метод для программного закрытия модального окна.
-// console.log(SimpleLightbox);
