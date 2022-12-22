@@ -40,7 +40,6 @@ function stopLoadingImg(e) {
 
 function onEscapePress(e) {
   if (e.code === 'Escape') {
-    console.log('close modal');
     this.close();
   }
 }
@@ -54,18 +53,14 @@ function onImageClick(e) {
 
   lightbox = basicLightbox.create(`<img src="${e.target.dataset.source}">`, {
     onShow: lightbox => {
-      console.log('add listener');
       document.addEventListener('keydown', onEscapePress.bind(lightbox), {
         once: true,
       });
     },
     onClose: () => {
-      console.log('delete listener');
       document.removeEventListener('keydown', onEscapePress);
     },
   });
 
   lightbox.show();
-
-  onEscapePress(e);
 }
